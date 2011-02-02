@@ -4,14 +4,14 @@ module Kaleidoscope
   #  e.g. theta(p) = PI/p, theta(q) = PI/q. "r" is always 2, and is not
   #  modifiable in this implementation.
   #
-  #   p
+  #   q
   #   |\
   #   | \
   #   |  \R
-  #  Q|v  \
+  #  P|v  \
   #   |    \
   #   |__u__\
-  #  r   P   q
+  #  r   Q   p
   #
   # r, q, and p are angles (r being a right angle)
   # R, Q, and P are lengths
@@ -36,42 +36,40 @@ module Kaleidoscope
     end
 
     def slope
-      @slope ||= -q_length / p_length
+      @slope ||= -p_length / q_length
     end
 
     # The math for these mirror functions goes something like this. Given a right
     # triangle as described above, we want to mirror the origin (the point at r)
     # across the hypotenuse, R. We do this by drawing a line perpendicular to R
     # from the origin, which happens to create a smaller version of the overall
-    # triangle, rotated so that the hypotenuse of the new triangle is P.
+    # triangle, rotated so that the hypotenuse of the new triangle is Q.
     #
-    # Since the angles of the new triangle are identical, we know that R/P = Q/Q2, 
-    # where Q2 is the perpendicular line we just drew. Solving for Q2 we see that
-    # Q2 = PQ/R. And since R is always 1.0 in this implementation, we can drop it
+    # Since the angles of the new triangle are identical, we know that R/P = Q/P2, 
+    # where P2 is the perpendicular line we just drew. Solving for P2 we see that
+    # P2 = PQ/R. And since R is always 1.0 in this implementation, we can drop it
     # altogether.
     #
-    # Similarly, R/Q = Q/P2, which yields P2 = Q^2.
+    # Similarly, R/Q = Q/Q2, which yields Q2 = Q^2.
     #
     # Now we know the how far the origin is from the hypotenuse, but we want to
-    # actually find the coordinate where the hypotenuse and Q2 intersect. (Q2,
+    # actually find the coordinate where the hypotenuse and P2 intersect. (P2,
     # remember, is the perpendular line we added). To do this, we need to further
     # subdivide the new triangle by dropping a line from that intersection point
-    # to P. But this is the same problem we just solved, only with P as the
+    # to Q. But this is the same problem we just solved, only with P2 as the
     # hypotenuse instead of R. So we can plug in the same equations as before:
     #
-    #   P/Q2 = Q2/Q3, which gives Q3 = Q2*Q2/P.
-    #     Substituting PQ for Q2 we get Q3 = PQPQ/P, or Q3 = PQ^2
+    #   R/P = P2/P3, which gives (after dropping R) P3 = QP^2
+    #   R/Q = P2/Q3, which gives Q3 = PQ^2
     #
-    # Solve similarly for P3.
-    #
-    # Q3 is the x offset, then, from the origin to the intersection point, and
-    # P3 is the y offset. Doubling those values gives us the reflected value.
+    # P3 is the x offset, then, from the origin to the intersection point, and
+    # Q3 is the y offset. Doubling those values gives us the reflected value.
     def mirror_x
-      @mirror_x ||= 2 * p_length * q_length * q_length
+      @mirror_x ||= 2 * q_length * p_length * p_length
     end
 
     def mirror_y
-      @mirror_y ||= 2 * q_length * p_length * p_length
+      @mirror_y ||= 2 * p_length * q_length * q_length
     end
 
     def at(u, v)
@@ -90,8 +88,8 @@ module Kaleidoscope
       # also, note that unless 0 >= u + v + w <= 1,
       # the point will be outside the triangle.
 
-      x = p_length * u # p_length is the x-coordinate of q
-      y = q_length * v # q_length is the y-coordinate of p
+      x = q_length * u # q_length is the x-coordinate of p
+      y = p_length * v # p_length is the y-coordinate of q
 
       [x, y]
     end
@@ -101,10 +99,10 @@ module Kaleidoscope
       when :p then [-x, y]
       when :q then [x, -y]
       when :r then
-        x2 = (y - q_length) / slope
-        y2 = slope * x + q_length
+        x2 = (y - p_length) / slope
+        y2 = slope * x + p_length
         dx, dy = x2 - x, y2 - y
-        scale = p_length / dx
+        scale = q_length / dx
 
         [x + mirror_x / scale, y + mirror_y / scale]
       end
