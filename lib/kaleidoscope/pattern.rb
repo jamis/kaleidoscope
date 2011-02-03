@@ -6,10 +6,15 @@ module Kaleidoscope
   class Pattern
     attr_reader :triangle, :corner, :u, :v
 
-    def initialize(p, q, corner, u, v)
+    def initialize(p, q, corner, u=nil, v=nil)
       @triangle = Triangle.new(p, q)
       @corner = corner
-      @u, @v = u, v
+
+      if u.nil? || v.nil?
+        @u, @v = @triangle.incenter
+      else
+        @u, @v = u, v
+      end
     end
 
     def apply(n, point)

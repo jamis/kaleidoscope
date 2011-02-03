@@ -54,4 +54,19 @@ class TriangleTest < Test::Unit::TestCase
     assert_equal Math::PI/3, @triangle.angle_at(:q)
     assert_equal Math::PI/2, @triangle.angle_at(:r)
   end
+
+  def test_incenter_should_return_uv_coordinates_of_the_incenter
+    circ = @triangle.q_length + @triangle.p_length + 1
+    u = @triangle.p_length / circ
+    v = @triangle.q_length / circ
+
+    assert_equal [u, v], @triangle.incenter
+
+    tri = Triangle.new(4, 4)
+    circ = tri.q_length + tri.p_length + 1
+    u = tri.p_length / circ
+    v = tri.q_length / circ
+
+    assert_equal [u, v], tri.incenter
+  end
 end

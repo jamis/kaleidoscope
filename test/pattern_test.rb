@@ -15,6 +15,14 @@ class PatternTest < Test::Unit::TestCase
     assert_equal 0.4, pattern.v
   end
 
+  def test_constructor_without_explicit_uv_should_compute_incenter
+    p1 = Pattern.new(3, 6, :p)
+    p2 = Pattern.new(4, 4, :p)
+
+    assert_equal p1.triangle.incenter, [p1.u, p1.v]
+    assert_equal p2.triangle.incenter, [p2.u, p2.v]
+  end
+
   def test_apply_step_zero_for_r_at_origin_should_describe_template_triangle
     pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
     origin = Point.new(0, 0)

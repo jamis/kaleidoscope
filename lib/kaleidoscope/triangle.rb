@@ -51,6 +51,13 @@ module Kaleidoscope
       @slope ||= -p_length / q_length
     end
 
+    def incenter
+      @incenter ||= begin
+        circ = p_length + q_length + 1
+        [p_length / circ, q_length / circ].freeze
+      end
+    end
+
     # The math for these mirror functions goes something like this. Given a right
     # triangle as described above, we want to mirror the origin (the point at r)
     # across the hypotenuse, R. We do this by drawing a line perpendicular to R
