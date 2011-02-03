@@ -59,9 +59,9 @@ module Kaleidoscope
       e2 = Edge.new(data[:uv], transform.apply(p2))
       e3 = Edge.new(data[:uv], transform.apply(p3))
 
-      data[:edges][e1] = [data[:vertices][0], data[:vertices][2]]
-      data[:edges][e2] = [data[:vertices][0], data[:vertices][1]]
-      data[:edges][e3] = [data[:vertices][1], data[:vertices][2]]
+      data[:edges][e1] = [data[:vertices][0], data[:vertices][2]] if e1.length > 0
+      data[:edges][e2] = [data[:vertices][0], data[:vertices][1]] if e2.length > 0
+      data[:edges][e3] = [data[:vertices][1], data[:vertices][2]] if e3.length > 0
 
       data
     end

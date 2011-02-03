@@ -148,5 +148,14 @@ class PatternTest < Test::Unit::TestCase
     uv = tri.at(0.3, 0.4)
     assert_equal tform.apply(uv), data[:uv]
   end
+
+  def test_apply_should_omit_degenerate_edges
+    pattern = Pattern.new(3, 6, :r, 0, 0)
+    data = pattern.apply(0, Point.new(0, 0))
+    assert_equal 1, data[:edges].length
+    p1 = pattern.triangle.at(0,0)
+    p2 = pattern.triangle.reflect(:r, p1)
+    assert_equal Edge.new(p1, p2), data[:edges].keys.first
+  end
 end
 

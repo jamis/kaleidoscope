@@ -44,4 +44,10 @@ class EdgeTest < Test::Unit::TestCase
     assert h.key?(e3)
     assert h.key?(e4)
   end
+
+  def test_length_should_be_the_distance_between_the_endpoints
+    p1, p2 = Point.new(1, 2), Point.new(5, 4)
+    edge = Edge.new(p1, p2)
+    assert_equal Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2), edge.length
+  end
 end
