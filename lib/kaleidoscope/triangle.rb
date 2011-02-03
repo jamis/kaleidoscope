@@ -1,3 +1,5 @@
+require 'kaleidoscope/point'
+
 module Kaleidoscope
   #  Defines a right triangle with a hypotenuse of length 1. The parameters
   #  p and q are divisors of PI representing the angle at the given corners,
@@ -18,6 +20,8 @@ module Kaleidoscope
   # u and v indicate the axis those coordinates apply to
 
   class Triangle
+    RIGHT = Math::PI / 2
+
     attr_reader :p, :q
 
     def initialize(p, q)
@@ -25,6 +29,14 @@ module Kaleidoscope
 
       @p_theta = Math::PI / @p
       @q_theta = Math::PI / @q
+    end
+
+    def angle_at(corner)
+      case corner
+        when :p then @p_theta
+        when :q then @q_theta
+        when :r then RIGHT
+      end
     end
 
     def p_length  
@@ -91,20 +103,19 @@ module Kaleidoscope
       x = q_length * u # q_length is the x-coordinate of p
       y = p_length * v # p_length is the y-coordinate of q
 
-      [x, y]
+      Point.new(x, y)
     end
 
-    def reflect(side, x, y)
+    def reflect(side, point)
       case side
-      when :p then [-x, y]
-      when :q then [x, -y]
+      when :p then Point.new(-point.x, point.y)
+      when :q then Point.new(point.x, -point.y)
       when :r then
-        x2 = (y - p_length) / slope
-        y2 = slope * x + p_length
-        dx, dy = x2 - x, y2 - y
+        x = (point.y - p_length) / slope
+        dx = x - point.x
         scale = q_length / dx
 
-        [x + mirror_x / scale, y + mirror_y / scale]
+        Point.new(point.x + mirror_x / scale, point.y + mirror_y / scale)
       end
     end
   end
