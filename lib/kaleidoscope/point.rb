@@ -15,7 +15,7 @@ module Kaleidoscope
     end
 
     def ==(pt)
-      xi == pt.xi && yi == pt.yi
+      pt && xi == pt.xi && yi == pt.yi
     end
     alias eql? ==
 

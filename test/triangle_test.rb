@@ -69,4 +69,10 @@ class TriangleTest < Test::Unit::TestCase
 
     assert_equal [u, v], tri.incenter
   end
+
+  def test_value_should_return_named_parameter
+    assert_equal 6, @triangle.value(:p)
+    assert_equal 3, @triangle.value(:q)
+    assert_equal 2, @triangle.value(:r)
+  end
 end

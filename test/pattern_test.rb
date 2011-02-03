@@ -165,5 +165,66 @@ class PatternTest < Test::Unit::TestCase
     p2 = pattern.triangle.reflect(:r, p1)
     assert_equal Edge.new(p1, p2), data[:edges].keys.first
   end
+
+  def test_apply_should_supply_coordinates_of_nearest_neighboring_tile
+    pattern = Pattern.new(4, 4, :r, 0, 0)
+    data = pattern.apply(0, Point.new(0, 0))
+    assert data[:neighbors].include?(Point.new(1.4142, 0))
+    assert data[:neighbors].include?(Point.new(0, 1.4142))
+
+    pattern = Pattern.new(3, 6, :p, 0, 0)
+    data = pattern.apply(0, Point.new(0, 0))
+    assert_equal [Point.new(-1, 1.732)], data[:neighbors]
+
+    pattern = Pattern.new(3, 6, :p, 0, 0)
+    data = pattern.apply(1, Point.new(0, 0))
+    assert_equal [Point.new(-1, -1.732)], data[:neighbors]
+
+    pattern = Pattern.new(3, 6, :p, 0, 0)
+    data = pattern.apply(2, Point.new(0, 0))
+    assert_equal [Point.new(-1, -1.732)], data[:neighbors]
+  end
+
+  def test_build_at_should_construct_polygon_at_given_point
+    pattern = Pattern.new(3, 6, :q)
+
+    assert pattern.edges.empty?
+    assert pattern.polygons.empty?
+
+    origin = Point.new(0, 0)
+    pattern.build_at(origin)
+
+    assert_equal 13, pattern.polygons.length
+    assert_equal 24, pattern.edges.length
+
+    dodecagon = pattern.polygons[origin]
+    assert_equal 12, dodecagon.edges.length
+  end
+
+  def test_build_at_with_block_should_not_save_points_for_which_the_block_yields_false
+    pattern = Pattern.new(3, 6, :q)
+    pattern.build_at(Point.new(0, 0)) { |point| point.x > 0 && point.y > 0 }
+    assert_equal 5, pattern.edges.length
+    assert_equal 5, pattern.polygons.length
+    assert_equal 2, pattern.polygons.values.select { |poly| poly.inside? }.length
+  end
+
+  def test_build_at_should_return_list_of_unique_neighbors_to_build_upon
+    pattern = Pattern.new(3, 6, :q)
+    list = pattern.build_at(Point.new(0, 0))
+    assert list.include?(Point.new(2, 0))
+    assert list.include?(Point.new(1, 1.732))
+    assert list.include?(Point.new(-1, 1.732))
+    assert list.include?(Point.new(-2, 0))
+    assert list.include?(Point.new(-1, -1.732))
+    assert list.include?(Point.new(1, -1.732))
+
+    pattern = Pattern.new(4, 4, :r)
+    list = pattern.build_at(Point.new(0, 0))
+    assert list.include?(Point.new(1.414, 0))
+    assert list.include?(Point.new(0, 1.414))
+    assert list.include?(Point.new(-1.414, 0))
+    assert list.include?(Point.new(0, -1.414))
+  end
 end
 

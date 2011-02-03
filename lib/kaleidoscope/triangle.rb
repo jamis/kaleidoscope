@@ -39,6 +39,14 @@ module Kaleidoscope
       end
     end
 
+    def value(name)
+      case name
+      when :p then @p
+      when :q then @q
+      when :r then 2
+      end
+    end
+
     def p_length  
       @p_length ||= Math.sin(@p_theta)
     end
