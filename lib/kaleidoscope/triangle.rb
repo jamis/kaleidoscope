@@ -23,12 +23,17 @@ module Kaleidoscope
     RIGHT = Math::PI / 2
 
     attr_reader :p, :q
+    attr_reader :p_theta, :q_theta
 
     def initialize(p, q)
       @p, @q = p, q
 
       @p_theta = Math::PI / @p
       @q_theta = Math::PI / @q
+    end
+
+    def ==(tri)
+      tri.p == @p && tri.q == @q
     end
 
     def angle_at(corner)

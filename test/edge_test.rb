@@ -50,4 +50,17 @@ class EdgeTest < Test::Unit::TestCase
     edge = Edge.new(p1, p2)
     assert_equal Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2), edge.length
   end
+
+  def test_edges_are_inside_by_default
+    p1, p2 = Point.new(1, 2), Point.new(5, 4)
+    edge = Edge.new(p1, p2)
+    assert edge.inside?
+  end
+
+  def test_asserting_that_an_edge_is_outside_should_make_inside_false
+    p1, p2 = Point.new(1, 2), Point.new(5, 4)
+    edge = Edge.new(p1, p2)
+    edge.outside!
+    assert !edge.inside?
+  end
 end

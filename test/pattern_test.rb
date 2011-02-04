@@ -6,225 +6,52 @@ require 'kaleidoscope/edge'
 class PatternTest < Test::Unit::TestCase
   include Kaleidoscope
 
-  def test_constructor_instantiates_template_triangle_and_sets_attributes
-    pattern = Pattern.new(6, 3, :p, 0.3, 0.4)
-    assert_equal 6, pattern.triangle.p
-    assert_equal 3, pattern.triangle.q
-    assert_equal :p, pattern.corner
+  def test_constructor_instantiates_sets_attributes
+    pattern = Pattern.new(6, 3, 0.3, 0.4)
+    assert_equal 6, pattern.p
+    assert_equal 3, pattern.q
     assert_equal 0.3, pattern.u
     assert_equal 0.4, pattern.v
   end
 
   def test_constructor_without_explicit_uv_should_compute_incenter
-    p1 = Pattern.new(3, 6, :p)
-    p2 = Pattern.new(4, 4, :p)
+    p1 = Pattern.new(3, 6)
+    t1 = Triangle.new(3, 6)
+    p2 = Pattern.new(4, 4)
+    t2 = Triangle.new(4, 4)
 
-    assert_equal p1.triangle.incenter, [p1.u, p1.v]
-    assert_equal p2.triangle.incenter, [p2.u, p2.v]
+    assert_equal t1.incenter, [p1.u, p1.v]
+    assert_equal t2.incenter, [p2.u, p2.v]
   end
 
-  def test_apply_step_zero_for_r_at_origin_should_describe_template_triangle
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    origin = Point.new(0, 0)
-
-    data = pattern.apply(0, origin)
-
-    assert_equal 3, data[:vertices].length
-    assert data[:vertices].include?(pattern.triangle.at(0,0))
-    assert data[:vertices].include?(pattern.triangle.at(1,0))
-    assert data[:vertices].include?(pattern.triangle.at(0,1))
-  end
-
-  def test_apply_step_zero_for_r_at_origin_should_build_edges_from_midpoint
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    origin = Point.new(0, 0)
-
-    data = pattern.apply(0, origin)
-    mid = pattern.triangle.at(0.3, 0.4)
-
-    assert_equal data[:uv], mid
-    assert_equal 3, data[:edges].length
-
-    e1 = Edge.new(mid, pattern.triangle.reflect(:p, mid))
-    e2 = Edge.new(mid, pattern.triangle.reflect(:q, mid))
-    e3 = Edge.new(mid, pattern.triangle.reflect(:r, mid))
-
-    assert data[:edges][e1].include?(pattern.triangle.at(0, 0))
-    assert data[:edges][e1].include?(pattern.triangle.at(0, 1))
-
-    assert data[:edges][e2].include?(pattern.triangle.at(0, 0))
-    assert data[:edges][e2].include?(pattern.triangle.at(1, 0))
-
-    assert data[:edges][e3].include?(pattern.triangle.at(1, 0))
-    assert data[:edges][e3].include?(pattern.triangle.at(0, 1))
-  end
-
-  def test_apply_step_zero_for_r_at_an_offset_should_translate_all_points
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    origin = Point.new(7.5, -4.2)
-    data = pattern.apply(0, origin)
-
-    uv = pattern.triangle.at(0.3, 0.4)
-    mid = uv.translate(origin.x, origin.y)
-    assert_equal data[:uv], mid
-
-    e1 = Edge.new(mid, pattern.triangle.reflect(:p, uv).translate(origin.x, origin.y))
-    e2 = Edge.new(mid, pattern.triangle.reflect(:q, uv).translate(origin.x, origin.y))
-    e3 = Edge.new(mid, pattern.triangle.reflect(:r, uv).translate(origin.x, origin.y))
-
-    assert data[:edges].key?(e1)
-    assert data[:edges].key?(e2)
-    assert data[:edges].key?(e3)
-  end
-
-  def test_apply_step_one_for_r_should_flip_triangle
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    data = pattern.apply(1, Point.new(0, 0))
-
-    uv = pattern.triangle.at(0.3, 0.4)
-    mid = pattern.triangle.reflect(:p, uv)
-    assert_equal data[:uv], mid
-
-    p1, p2, p3 = pattern.triangle.at(0, 0), pattern.triangle.at(1, 0), pattern.triangle.at(0, 1)
-    p2 = pattern.triangle.reflect(:p, p2)
-
-    assert data[:vertices].include?(p1)
-    assert data[:vertices].include?(p2)
-    assert data[:vertices].include?(p3)
-
-    e1 = Edge.new(mid, uv)
-    e2 = Edge.new(mid, pattern.triangle.reflect(:p, pattern.triangle.reflect(:q, uv)))
-    e3 = Edge.new(mid, pattern.triangle.reflect(:p, pattern.triangle.reflect(:r, uv)))
-
-    assert data[:edges].key?(e1)
-    assert data[:edges].key?(e2)
-    assert data[:edges].key?(e3)
-  end
-
-  def test_apply_step_two_for_r_should_rotate_triangle
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    data = pattern.apply(2, Point.new(0, 0))
-
-    uv = pattern.triangle.at(0.3, 0.4)
-    mid = Point.new(-uv.x, -uv.y)
-    assert_equal data[:uv], mid
-
-    p1, p2, p3 = pattern.triangle.at(0, 0), pattern.triangle.at(1, 0), pattern.triangle.at(0, 1)
-    p1, p2, p3 = [p1, p2, p3].map { |p| Point.new(-p.x, -p.y) }
-
-    assert data[:vertices].include?(p1)
-    assert data[:vertices].include?(p2)
-    assert data[:vertices].include?(p3)
-
-    e1 = Edge.new(mid, Point.new(uv.x, -uv.y))
-    e2 = Edge.new(mid, Point.new(-uv.x, uv.y))
-    p = pattern.triangle.reflect(:r, uv)
-    e3 = Edge.new(mid, Point.new(-p.x, -p.y))
-
-    assert data[:edges].key?(e1)
-    assert data[:edges].key?(e2)
-    assert data[:edges].key?(e3)
-  end
-
-  def test_apply_step_4_for_r_should_given_template_triangle
-    pattern = Pattern.new(6, 3, :r, 0.3, 0.4)
-    data = pattern.apply(4, Point.new(0, 0))
-
-    assert_equal 3, data[:vertices].length
-    assert data[:vertices].include?(pattern.triangle.at(0,0))
-    assert data[:vertices].include?(pattern.triangle.at(1,0))
-    assert data[:vertices].include?(pattern.triangle.at(0,1))
-  end
-
-  def test_apply_step_0_for_p_should_translate_triangle_to_p
-    pattern = Pattern.new(6, 3, :p, 0.3, 0.4)
-    tri = pattern.triangle
-    data = pattern.apply(0, Point.new(0, 0))
-
-    p1, p2, p3 = tri.at(0, 0), tri.at(1, 0), tri.at(0, 1)
-
-    tform = Transformation.new
-    tform.translate(-p2.x, -p2.y)
-
-    p1, p2, p3 = [p1, p2, p3].map { |p| tform.apply(p) }
-
-    assert_equal 3, data[:vertices].length
-    assert data[:vertices].include?(p1)
-    assert data[:vertices].include?(p2)
-    assert data[:vertices].include?(p3)
-
-    uv = tri.at(0.3, 0.4)
-    assert_equal tform.apply(uv), data[:uv]
-  end
-
-  def test_apply_should_omit_degenerate_edges
-    pattern = Pattern.new(3, 6, :r, 0, 0)
-    data = pattern.apply(0, Point.new(0, 0))
-    assert_equal 1, data[:edges].length
-    p1 = pattern.triangle.at(0,0)
-    p2 = pattern.triangle.reflect(:r, p1)
-    assert_equal Edge.new(p1, p2), data[:edges].keys.first
-  end
-
-  def test_apply_should_supply_coordinates_of_nearest_neighboring_tile
-    pattern = Pattern.new(4, 4, :r, 0, 0)
-    data = pattern.apply(0, Point.new(0, 0))
-    assert data[:neighbors].include?(Point.new(1.4142, 0))
-    assert data[:neighbors].include?(Point.new(0, 1.4142))
-
-    pattern = Pattern.new(3, 6, :p, 0, 0)
-    data = pattern.apply(0, Point.new(0, 0))
-    assert_equal [Point.new(-1, 1.732)], data[:neighbors]
-
-    pattern = Pattern.new(3, 6, :p, 0, 0)
-    data = pattern.apply(1, Point.new(0, 0))
-    assert_equal [Point.new(-1, -1.732)], data[:neighbors]
-
-    pattern = Pattern.new(3, 6, :p, 0, 0)
-    data = pattern.apply(2, Point.new(0, 0))
-    assert_equal [Point.new(-1, -1.732)], data[:neighbors]
-  end
-
-  def test_build_at_should_construct_polygon_at_given_point
-    pattern = Pattern.new(3, 6, :q)
-
-    assert pattern.edges.empty?
+  def test_constructor_should_initialize_polygon_and_edge_lists_to_empty
+    pattern = Pattern.new(6, 3)
     assert pattern.polygons.empty?
-
-    origin = Point.new(0, 0)
-    pattern.build_at(origin)
-
-    assert_equal 13, pattern.polygons.length
-    assert_equal 24, pattern.edges.length
-
-    dodecagon = pattern.polygons[origin]
-    assert_equal 12, dodecagon.edges.length
+    assert pattern.edges.empty?
   end
 
-  def test_build_at_with_block_should_not_save_points_for_which_the_block_yields_false
-    pattern = Pattern.new(3, 6, :q)
-    pattern.build_at(Point.new(0, 0)) { |point| point.x > 0 && point.y > 0 }
-    assert_equal 5, pattern.edges.length
-    assert_equal 5, pattern.polygons.length
-    assert_equal 2, pattern.polygons.values.select { |poly| poly.inside? }.length
+  def test_generate_should_build_out_polygons_and_edges_within_the_specified_bounds
+    p = Pattern.new(6, 3)
+    p.generate! { |pt| pt.x.between?(-1.01, 1.01) && pt.y.between?(-1.01, 1.01) }
+    assert_equal 17, p.polygons.length
+    assert_equal 36, p.edges.length
   end
 
-  def test_build_at_should_return_list_of_unique_neighbors_to_build_upon
-    pattern = Pattern.new(3, 6, :q)
-    list = pattern.build_at(Point.new(0, 0))
-    assert list.include?(Point.new(2, 0))
-    assert list.include?(Point.new(1, 1.732))
-    assert list.include?(Point.new(-1, 1.732))
-    assert list.include?(Point.new(-2, 0))
-    assert list.include?(Point.new(-1, -1.732))
-    assert list.include?(Point.new(1, -1.732))
+  def test_generate_should_mark_polygons_as_outside_when_they_are_not_fully_inside_the_bounds
+    p = Pattern.new(6, 3)
+    p.generate! { |pt| pt.x.between?(-1.01, 1.01) && pt.y.between?(-1.01, 1.01) }
+    assert_equal 5, p.polygons.select { |poly| poly.inside? }.length
+  end
 
-    pattern = Pattern.new(4, 4, :r)
-    list = pattern.build_at(Point.new(0, 0))
-    assert list.include?(Point.new(1.414, 0))
-    assert list.include?(Point.new(0, 1.414))
-    assert list.include?(Point.new(-1.414, 0))
-    assert list.include?(Point.new(0, -1.414))
+  def test_generate_should_mark_edges_as_outside_when_they_are_not_fully_inside_the_bounds
+    p = Pattern.new(6, 3)
+    p.generate! { |pt| pt.x.between?(-1.01, 1.01) && pt.y.between?(-1.01, 1.01) }
+    assert_equal 24, p.edges.select { |edge| edge.inside? }.length
+  end
+
+  def test_generate_should_cover_all_seed_sites_within_the_bounds
+    p = Pattern.new(6, 3)
+    p.generate! { |pt| pt.x.between?(-1.01, 3.01) && pt.y.between?(-1.01, 3.01) }
+    assert_equal 49, p.polygons.length
   end
 end
-

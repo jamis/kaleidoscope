@@ -4,6 +4,7 @@ module Kaleidoscope
 
     def initialize(p1, p2)
       @p1, @p2 = p1, p2
+      @inside = true
     end
 
     def length
@@ -17,6 +18,14 @@ module Kaleidoscope
 
     def hash
       @hash ||= [@p1.hash, @p2.hash].sort.hash
+    end
+
+    def outside!
+      @inside = false
+    end
+
+    def inside?
+      @inside
     end
   end
 end

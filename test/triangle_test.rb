@@ -75,4 +75,9 @@ class TriangleTest < Test::Unit::TestCase
     assert_equal 3, @triangle.value(:q)
     assert_equal 2, @triangle.value(:r)
   end
+
+  def test_triangles_with_the_same_parameters_should_be_equal
+    tri2 = Triangle.new(@triangle.p, @triangle.q)
+    assert_equal tri2, @triangle
+  end
 end
