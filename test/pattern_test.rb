@@ -30,6 +30,27 @@ class PatternTest < Test::Unit::TestCase
     assert pattern.edges.empty?
   end
 
+  def test_build_at_should_tile_all_phases_at_the_given_point
+    pattern = Pattern.new(6, 3)
+    pattern.build_at(Point.new(0, 0), 0)
+    assert_equal 19, pattern.polygons.length
+    assert_equal 42, pattern.edges.length
+  end
+
+  def test_build_at_with_even_increment_should_not_rotate_tile_for_odd_p
+    origin, pattern = Point.new(0, 0), Pattern.new(3, 6)
+    neighbors = pattern.build_at(origin, 0)
+    assert neighbors.include?(Point.new(-1, 0))
+    assert !neighbors.include?(Point.new(1, 0))
+  end
+
+  def test_build_at_with_odd_increment_should_rotate_tile_for_odd_p
+    origin, pattern = Point.new(0, 0), Pattern.new(3, 6)
+    neighbors = pattern.build_at(origin, 1)
+    assert !neighbors.include?(Point.new(-1, 0))
+    assert neighbors.include?(Point.new(1, 0))
+  end
+
   def test_generate_should_build_out_polygons_and_edges_within_the_specified_bounds
     p = Pattern.new(6, 3)
     p.generate! { |pt| pt.x.between?(-1.01, 1.01) && pt.y.between?(-1.01, 1.01) }
