@@ -1,0 +1,9 @@
+polygons are being marked "inside" when they are missing edges (see corners of (6,3) generated at -10..10)
+
+polygons are overlapping? or somehow neighbors aren't being set right? (see 6,3 at 0.65,0.35)
+
+(3,6) isn't tiling correctly (needs a rotation or something...gotta research that a bit more)
+
+the finished polygons ought to have polygons as neighbors, not just their midpoints. then we could hide the poly_map again in Pattern.
+
+SPEED. It's pretty slow right now.
