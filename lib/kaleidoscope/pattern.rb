@@ -11,6 +11,7 @@ module Kaleidoscope
       @tile = Tile.new(p, q, u, v)
       @polygons = []
       @edges = []
+      @poly_map = {}
     end
 
     def u
@@ -29,8 +30,11 @@ module Kaleidoscope
       @tile.triangle.q
     end
 
+    def polygon_at(point)
+      @poly_map[point]
+    end
+
     def generate!
-      poly_map = {}
       edge_map = {}
 
       seen = {}
@@ -67,7 +71,7 @@ module Kaleidoscope
             end
 
             if valid_edges.any?
-              poly = (poly_map[center.translate(seed.x, seed.y)] ||= Polygon.new)
+              poly = (@poly_map[center.translate(seed.x, seed.y)] ||= Polygon.new)
               poly.outside! unless inside
               valid_edges.each { |edge, neighbor| poly.edges[edge] = neighbor }
             end
@@ -79,15 +83,7 @@ module Kaleidoscope
       end
 
       @edges = edge_map.keys
-      @polygons = poly_map.values
-    end
-
-    def add_edge(edge)
-      @edges[edge] ||= edge
-    end
-
-    def polygon_at(point)
-      @polygons[point] ||= Polygon.new
+      @polygons = @poly_map.values
     end
   end
 end
