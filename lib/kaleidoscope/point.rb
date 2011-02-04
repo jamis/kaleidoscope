@@ -14,6 +14,10 @@ module Kaleidoscope
       Point.new(@x + dx, @y + dy)
     end
 
+    def to_s
+      "(%g,%g)" % [@x, @y]
+    end
+
     def ==(pt)
       pt && xi == pt.xi && yi == pt.yi
     end

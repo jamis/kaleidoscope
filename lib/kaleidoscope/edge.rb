@@ -20,6 +20,10 @@ module Kaleidoscope
       @hash ||= [@p1.hash, @p2.hash].sort.hash
     end
 
+    def to_s
+      "%s-%s" % [@p1, @p2]
+    end
+
     def outside!
       @inside = false
     end

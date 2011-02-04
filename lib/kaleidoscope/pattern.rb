@@ -2,6 +2,7 @@ require 'kaleidoscope/tile'
 require 'kaleidoscope/edge'
 require 'kaleidoscope/transformation'
 require 'kaleidoscope/polygon'
+require 'kaleidoscope/point_dictionary'
 
 module Kaleidoscope
   class Pattern
@@ -10,6 +11,7 @@ module Kaleidoscope
       @polygons = @edges = nil
       @poly_map = {}
       @edge_map = {}
+      @dict = PointDictionary.new
     end
 
     def u
@@ -58,8 +60,8 @@ module Kaleidoscope
           inside = true
 
           edges.each do |edge, neighbor|
-            p1 = trans.apply(edge.p1)
-            p2 = trans.apply(edge.p2)
+            p1 = @dict.canonical(trans.apply(edge.p1))
+            p2 = @dict.canonical(trans.apply(edge.p2))
 
             p1_in = validator[p1]
             p2_in = validator[p2]
@@ -71,18 +73,18 @@ module Kaleidoscope
               inside &= p1_in && p2_in
               edge.outside! unless p1_in && p2_in
 
-              valid_edges[edge] = trans.apply(neighbor)
+              valid_edges[edge] = @dict.canonical(trans.apply(neighbor))
             end
           end
 
           if valid_edges.any?
-            poly = (@poly_map[trans.apply(center)] ||= Polygon.new)
+            poly = (@poly_map[@dict.canonical(trans.apply(center))] ||= Polygon.new)
             poly.outside! unless inside
             valid_edges.each { |edge, neighbor| poly.edges[edge] = neighbor }
           end
         end
 
-        neighbor = trans.apply(data[:neighbor])
+        neighbor = @dict.canonical(trans.apply(data[:neighbor]))
         seeds << neighbor if validator[neighbor]
       end
 

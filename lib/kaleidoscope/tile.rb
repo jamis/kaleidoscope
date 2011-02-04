@@ -119,7 +119,7 @@ module Kaleidoscope
         @polygons = {}
 
         edge_map.each do |center, map|
-          keepers = map.keys.select { |e| e.length > 0 }
+          keepers = map.keys.select { |e| e.length.abs > 0.001 }
           if constraints[center][keepers]
             @polygons[center] = {}
             keepers.each do |edge|
