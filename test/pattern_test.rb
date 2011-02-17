@@ -73,6 +73,6 @@ class PatternTest < Test::Unit::TestCase
   def test_generate_should_cover_all_seed_sites_within_the_bounds
     p = Pattern.new(6, 3)
     p.generate! { |pt| pt.x.between?(-1.01, 3.01) && pt.y.between?(-1.01, 3.01) }
-    assert_equal 49, p.polygons.length
+    assert_equal 50, p.polygons.length
   end
 end

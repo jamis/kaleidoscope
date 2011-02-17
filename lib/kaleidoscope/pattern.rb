@@ -51,6 +51,7 @@ module Kaleidoscope
 
       validator ||= proc { |pt| true }
       seeds = []
+      valid_edges_generated = false
 
       @tile.phase_count.times do |n|
         data = @tile.phase(n)
@@ -81,11 +82,13 @@ module Kaleidoscope
             poly = (@poly_map[@dict.canonical(trans.apply(center))] ||= Polygon.new)
             poly.outside! unless inside
             valid_edges.each { |edge, neighbor| poly.edges[edge] = neighbor }
+            valid_edges_generated = true
           end
         end
 
-        neighbor = @dict.canonical(trans.apply(data[:neighbor]))
-        seeds << neighbor if validator[neighbor]
+        if valid_edges_generated
+          seeds << @dict.canonical(trans.apply(data[:neighbor]))
+        end
       end
 
       return seeds
