@@ -5,7 +5,31 @@ require 'kaleidoscope/polygon'
 require 'kaleidoscope/point_dictionary'
 
 module Kaleidoscope
+  # The Pattern class is the primary means of generating patterns. You
+  # instantiate a pattern by providing the p and q values for the
+  # desired fundamental triangles, and optionally the u and v values
+  # for the generator point.
+  #
+  #   pattern = Kaleidoscope::Pattern.new(6, 3, 0.35, 0.65)
+  #   pattern.generate! do |point|
+  #     point.x * point.x + point.y * point.y < 10
+  #   end
+  #
+  #   pattern.polygons.each do |polygon|
+  #     # ...
+  #   end
+  #
+  # Note that the generated pattern will include all the polygons
+  # within the specified region (naturally), but will also include
+  # the polygons that lie immediately outside the region, too.
+  # (This is to aid some applications in consistently identifying
+  # the boundary of the pattern.) You can identify the inside/outside
+  # polygons via the Polygon#inside? method.
   class Pattern
+    # Instantiates a new pattern with the given fundamental triangle
+    # (p,q,2), and the given (u,v) generator point. If the generator
+    # point is not given, it will default to the incenter of the
+    # fundamental triangle.
     def initialize(p, q, u=nil, v=nil)
       @tile = Tile.new(p, q, u, v)
       @polygons = @edges = nil
@@ -34,10 +58,12 @@ module Kaleidoscope
       @poly_map[point]
     end
 
+    # Returns all of the polygons defined in the pattern.
     def polygons
       @polygons || @poly_map.values
     end
 
+    # Returns all of the edges defined in the pattern.
     def edges
       @edges || @edge_map.keys
     end
@@ -94,6 +120,10 @@ module Kaleidoscope
       return seeds
     end
 
+    # Generates the pattern by building out the polygons as needed to
+    # tesselate the plane. The validator block is invoked for every point
+    # to determine whether the point lies within the desired region of the
+    # plane or not.
     def generate!(&validator)
       seen = {}
       seeds = [ [0, Point.new(0, 0)] ]
