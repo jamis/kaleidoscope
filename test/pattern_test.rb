@@ -6,7 +6,7 @@ require 'kaleidoscope/edge'
 class PatternTest < Test::Unit::TestCase
   include Kaleidoscope
 
-  def test_constructor_instantiates_sets_attributes
+  def test_constructor_sets_attributes
     pattern = Pattern.new(6, 3, 0.3, 0.4)
     assert_equal 6, pattern.p
     assert_equal 3, pattern.q

@@ -1,5 +1,3 @@
-polygons are being marked "inside" when they are missing edges (see corners of (6,3) generated at -10..10)
-
-the finished polygons ought to have polygons as neighbors, not just their midpoints. then we could hide the poly_map again in Pattern.
+incorporate coloring data for generated polygons
 
 SPEED. It's pretty slow right now.
