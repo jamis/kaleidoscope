@@ -1,0 +1,1 @@
+require 'kaleidoscope/pattern'
