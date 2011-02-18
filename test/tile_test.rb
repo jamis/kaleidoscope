@@ -53,6 +53,20 @@ class TileTest < Test::Unit::TestCase
     assert_equal 3, tile.polygons[p4].length
   end
 
+  def test_tile_should_generate_coloring_data_for_each_polygon
+    tile = Tile.new(6, 3)
+    assert_equal tile.colors.length, tile.polygons.length
+    assert_equal 3, tile.colors.values.uniq.length
+
+    tile = Tile.new(6, 3, 0, 0)
+    assert_equal tile.colors.length, tile.polygons.length
+    assert_equal 2, tile.colors.values.uniq.length
+
+    tile = Tile.new(6, 3, 1, 0)
+    assert_equal tile.colors.length, tile.polygons.length
+    assert_equal 1, tile.colors.values.uniq.length
+  end
+
   def test_polygon_edges_should_map_to_centerpoint_of_neighboring_polygon
     tile = Tile.new(6, 3)
 
@@ -133,6 +147,12 @@ class TileTest < Test::Unit::TestCase
       c2 = center.translate(-tile.triangle.q_length, 0)
       assert data[:polygons][c2].is_a?(Hash)
     end
+  end
+
+  def test_phase_should_report_coloring
+    tile = Tile.new(6, 3)
+    data = tile.phase(0)
+    assert_equal data[:colors].length, data[:polygons].length
   end
 
   private

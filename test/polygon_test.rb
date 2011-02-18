@@ -31,6 +31,14 @@ class PolygonTest < Test::Unit::TestCase
     assert_equal @point, poly.center
   end
 
+  def test_polygon_constructor_accepts_optional_coloring_parameter
+    poly = Polygon.new(@master, @point)
+    assert_nil poly.color
+
+    poly = Polygon.new(@master, @point, 2)
+    assert_equal 2, poly.color
+  end
+
   def test_polygon_initially_has_no_edges
     poly = Polygon.new(@master, @point)
     assert poly.edges.empty?

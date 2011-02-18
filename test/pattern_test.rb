@@ -37,6 +37,12 @@ class PatternTest < Test::Unit::TestCase
     assert_equal 42, pattern.edges.length
   end
 
+  def test_build_at_should_set_color_data_on_generated_polygons
+    pattern = Pattern.new(6, 3)
+    pattern.build_at(Point.new(0, 0), 0)
+    assert pattern.polygons.all? { |poly| poly.color }
+  end
+
   def test_build_at_with_even_increment_should_not_rotate_tile_for_odd_p
     origin, pattern = Point.new(0, 0), Pattern.new(3, 6)
     neighbors = pattern.build_at(origin, 0)

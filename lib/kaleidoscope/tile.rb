@@ -6,7 +6,7 @@ require 'kaleidoscope/transformation'
 module Kaleidoscope
   class Tile
     attr_reader :triangle, :u, :v
-    attr_reader :edges, :polygons
+    attr_reader :edges, :polygons, :colors
 
     def initialize(p, q, u=nil, v=nil)
       @triangle = Triangle.new(p, q)
@@ -33,7 +33,7 @@ module Kaleidoscope
       t.translate(-@triangle.q_length, 0)
       t.rotate(phase_angle * n) if n != 0
 
-      data = { :edges => [], :polygons => {} }
+      data = { :edges => [], :polygons => {}, :colors => {} }
 
       edge_map = {}
       @edges.each do |edge|
@@ -44,6 +44,7 @@ module Kaleidoscope
 
       @polygons.each do |center, edges|
         c1 = t.apply(center)
+        data[:colors][c1] = @colors[center]
         data[:polygons][c1] = edges.inject({}) do |hash, (e, c)|
           hash[edge_map[e]] = t.apply(c)
           hash
@@ -105,6 +106,9 @@ module Kaleidoscope
           j => { e3 => c, e7 => i, e8 => g }
         }
 
+        # polygon color map
+        color_map = { c => 0, g => 1, h => 2, i => 1, j => 2 }
+
         edges = {}
 
         center_ok = proc { |list| list.include?(e1) && list.include?(e2) }
@@ -117,11 +121,13 @@ module Kaleidoscope
         }
 
         @polygons = {}
+        @colors = {}
 
         edge_map.each do |center, map|
           keepers = map.keys.select { |e| e.length.abs > 0.001 }
           if constraints[center][keepers]
             @polygons[center] = {}
+            @colors[center] = color_map[center]
             keepers.each do |edge|
               edges[edge] = true
               @polygons[center][edge] = map[edge]
