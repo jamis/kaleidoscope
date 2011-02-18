@@ -1,10 +1,12 @@
 module Kaleidoscope
   class Polygon
-    attr_reader :master
+    attr_reader :master, :center
     attr_reader :edge_map
 
-    def initialize(master)
+    def initialize(master, center)
       @master = master
+      @center = center
+
       @edge_map = {}
       @inside = true
     end

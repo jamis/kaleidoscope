@@ -79,7 +79,8 @@ module Kaleidoscope
           end
 
           if valid_edges.any?
-            poly = (@poly_map[@dict.canonical(trans.apply(center))] ||= Polygon.new(self))
+            center = @dict.canonical(trans.apply(center))
+            poly = (@poly_map[center] ||= Polygon.new(self, center))
             poly.outside! unless inside
             valid_edges.each { |edge, neighbor| poly.edge_map[edge] = neighbor }
             valid_edges_generated = true
