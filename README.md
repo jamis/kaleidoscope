@@ -32,7 +32,7 @@ Understanding Wythoff's construction
 
 The triangles are specified by their corners, so that if one corner has an
 angle of pi/4, that corner would be given the value of 4. The right angle
-itself (pi/2) would be 2. Because the right angle is always present, it's
+itself (pi/2) would be 2. Because the right angle is always present, its
 presence is always implied, and you only need to specify the other two
 corners.
 
